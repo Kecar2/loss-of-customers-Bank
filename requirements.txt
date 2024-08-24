@@ -3,4 +3,3 @@ plotly
 pandas
 matplotlib
 seaborn
-sklearn
