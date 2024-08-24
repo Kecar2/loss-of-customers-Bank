@@ -34,8 +34,8 @@ columns_to_normalize = ['Customer_Age', 'Dependent_count', 'Months_on_book',
                         'Total_Trans_Ct', 'Total_Ct_Chng_Q4_Q1', 'Avg_Utilization_Ratio']
 
 # Ensure 'test_idx' column exists
-if 'test_idx' not in df_test.columns:
-    st.write("The 'test_idx' column is not present in the test data.")
+if 'CLIENTNUM' not in df_test.columns:
+    st.write("The 'CLIENTNUM' column is not present in the test data.")
     st.stop()
 
 # Preprocessing function
@@ -60,7 +60,7 @@ st.set_page_config(page_title="Customer Churn Analysis - Bank", layout="wide", i
 st.sidebar.image("logo.png", use_column_width=True)
 st.sidebar.header("Customer Churn Analysis")
 st.sidebar.subheader("Navigation")
-selection = st.sidebar.radio("Go to", ["Home", "Training Data Visualization", 
+selection = st.sidebar.radio("Go to", ["Home", 
                                       "Test Data Visualization", "Churn Prediction", 
                                       "User Activity Comparison", "Interactive Analysis", 
                                       "Additional Visualizations", "Customer Simulation"])
@@ -68,12 +68,42 @@ selection = st.sidebar.radio("Go to", ["Home", "Training Data Visualization",
 # Application title
 st.title("Customer Churn Analysis - Bank")
 
+image_path = "score.png" 
+
 # Home
 if selection == "Home":
     st.header("Welcome to the Customer Churn Analysis Application")
-    st.write("This application helps you analyze customer churn risk in a bank.")
-    st.write("Use the tabs in the sidebar to navigate through different sections.")
-    st.write("Explore various features and visualizations to understand customer behavior and churn predictions.")
+    st.markdown(f"""
+    This application helps you analyze customer churn risk in a bank. It provides tools for understanding and predicting which customers are likely to leave the bank based on their behaviors and characteristics.
+    
+    ### Utility of the Application
+    The application is designed to:
+    - **Predict Churn**: Estimate the likelihood that a customer will stop using the bank's services based on their attributes and past behavior.
+    - **Visualize Data**: Offer visual insights into the distribution of customer characteristics and churn predictions.
+    - **Compare User Activity**: Compare the activity levels of selected customers to identify patterns and differences.
+    - **Interactive Analysis**: Explore relationships between different features and their association with churn.
+    - **Customer Simulation**: Allow users to input details for a new customer and predict their churn risk.
+
+    ### Methods Used
+    - **Predictive Modeling**:
+      - **Gradient Boosting**: A powerful machine learning model that combines multiple decision trees to improve prediction accuracy. It is used to estimate the probability of churn based on customer data.
+    - **Data Preprocessing**:
+      - **Normalization**: Scaling numerical features to ensure they contribute equally to the model's performance.
+      - **Categorical Encoding**: Converting categorical variables into binary format to be used by the model.
+      - **Feature Alignment**: Ensuring that the input data includes all features required by the model, adding missing ones with zero values if necessary.
+    - **Visual Analysis**:
+      - **Feature Distributions**: Histograms and bar charts to show how different features are distributed in the data.
+      - **Correlation Analysis**: Heatmaps to explore relationships between features and their correlation with churn.
+      - **PCA**: Principal Component Analysis to reduce data dimensionality and visualize the separation between churn and non-churn customers in a 2D space.
+    - **Interactive Analysis**:
+      - **Scatter Plots**: Explore feature relationships and their association with churn predictions.
+      - **Comparison of Selected Users**: Analyze and compare selected customer activity and attributes.
+    - **Customer Simulation**:
+      - **Manual Input**: Enter details for a new customer to simulate their churn risk prediction.
+
+    This application provides a comprehensive view of customer behavior and helps make informed decisions to improve customer retention.
+    """)
+
 
 # Training Data Visualization
 elif selection == "Training Data Visualization":
@@ -161,24 +191,26 @@ elif selection == "Test Data Visualization":
 elif selection == "Churn Prediction":
     st.header("Churn Prediction")
 
-    input_idx = st.text_input("Enter the test_idx of the customer:", "")
+    input_idx = st.text_input("Enter the CLIENTNUM of the customer:", "")
 
     if input_idx:
         try:
             test_idx_value = int(input_idx)
-            selected_row = df_test[df_test['test_idx'] == test_idx_value]
+            selected_row = df_test[df_test['CLIENTNUM'] == test_idx_value]
 
             if not selected_row.empty:
-                st.write(f"Details for customer with test_idx {test_idx_value}:")
+                st.write(f"Details for customer with CLIENTNUM {test_idx_value}:")
                 st.dataframe(selected_row)
 
-                selected_row_for_prediction = selected_row.drop(columns=['test_idx'])
+                selected_row_for_prediction = selected_row.drop(columns=['CLIENTNUM'])
                 selected_row_for_prediction = preprocess_for_prediction(selected_row_for_prediction)
 
                 if st.button("Predict Churn"):
                     prediction = loaded_model.predict(selected_row_for_prediction)
-                    message = 'Churn' if prediction[0] == 1 else 'No Churn'
-                    st.write(f"The prediction for test_idx {test_idx_value} is: {message}")
+                    message = 'CHURN' if prediction[0] == 1 else 'NO CHURN'
+                    color = 'red' if prediction[0] == 1 else 'green'
+                    st.markdown(f"<h2 style='color: {color};'>{message}</h2>", unsafe_allow_html=True)
+                    
 
                     st.subheader("Visual Analysis")
                     for feature in columns_to_normalize:
@@ -187,9 +219,9 @@ elif selection == "Churn Prediction":
                         st.plotly_chart(fig, use_container_width=True)
 
             else:
-                st.write("Customer with the given test_idx not found.")
+                st.write("Customer with the given CLIENTNUM not found.")
         except ValueError:
-            st.write("Please enter a valid test_idx.")
+            st.write("Please enter a valid CLIENTNUM.")
 
 # User Activity Comparison
 elif selection == "User Activity Comparison":
@@ -379,5 +411,5 @@ elif selection == "Customer Simulation":
         new_customer_df = preprocess_for_prediction(new_customer_df)
         churn_prediction = loaded_model.predict(new_customer_df)
         message = 'Churn' if churn_prediction[0] == 1 else 'No Churn'
-        st.write(f"The prediction for the new customer is: {message}")
-
+        color = 'red' if churn_prediction[0] == 1 else 'green'
+        st.markdown(f"<h2 style='color: {color};'>{message}</h2>", unsafe_allow_html=True)
