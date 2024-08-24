@@ -6,7 +6,6 @@ import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
 import seaborn as sns
 import io
-from sklearn.decomposition import PCA
 
 # Define a color map for churn prediction categories
 color_map = {
@@ -155,17 +154,6 @@ elif selection == "Training Data Visualization":
     fig.update_layout(title='Interactive Correlation Matrix', title_font_size=24)
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("PCA Analysis")
-    pca = PCA(n_components=2)
-    principal_components = pca.fit_transform(numeric_df.fillna(0))
-    df_pca = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
-    df_pca['Churn Prediction'] = df_train['Churn Prediction']
-
-    fig = px.scatter(df_pca, x='PC1', y='PC2', color='Churn Prediction',
-                     color_discrete_map=color_map, title='PCA of Training Data')
-    fig.update_layout(xaxis_title='PC1', yaxis_title='PC2', title_font_size=24)
-    st.plotly_chart(fig, use_container_width=True)
-
 # Test Data Visualization
 elif selection == "Test Data Visualization":
     st.header("Overview of Test Data")
@@ -304,17 +292,6 @@ elif selection == "Interactive Analysis":
                          color_discrete_map=color_map, title=f'{feature_pair_y} vs {feature_pair_x}')
         fig.update_layout(xaxis_title=feature_pair_x, yaxis_title=feature_pair_y, title_font_size=24)
         st.plotly_chart(fig, use_container_width=True)
-
-    st.subheader("PCA Analysis")
-    pca = PCA(n_components=2)
-    principal_components = pca.fit_transform(selected_data.fillna(0)[columns_to_normalize])
-    df_pca = pd.DataFrame(data=principal_components, columns=['PC1', 'PC2'])
-    df_pca['Churn Prediction'] = selected_data['Churn Prediction']
-
-    fig = px.scatter(df_pca, x='PC1', y='PC2', color='Churn Prediction',
-                     color_discrete_map=color_map, title='PCA of Test Data')
-    fig.update_layout(xaxis_title='PC1', yaxis_title='PC2', title_font_size=24)
-    st.plotly_chart(fig, use_container_width=True)
 
 # Additional Visualizations
 elif selection == "Additional Visualizations":
