@@ -101,7 +101,7 @@ if selection == "Home":
     - **Customer Simulation**:
       - **Manual Input**: Enter details for a new customer to simulate their churn risk prediction.
 
-    This application provides a comprehensive view of customer behavior and helps make informed decisions to improve customer retention.
+    This App provides a comprehensive view of customer behavior and helps make informed decisions to improve customer retention.
     """)
 
 
