@@ -1,9 +1,3 @@
 streamlit
-streamlit
-pandas 
-pickle
 plotly
-matplotlib
-seaborn
-io
-sklearn
+pandas
