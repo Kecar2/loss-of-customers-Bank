@@ -62,7 +62,8 @@ st.sidebar.header("Customer Churn Analysis")
 st.sidebar.subheader("Navigation")
 selection = st.sidebar.radio("Go to", ["Home", "Training Data Visualization", 
                                       "Test Data Visualization", "Churn Prediction", 
-                                      "User Activity Comparison", "Interactive Analysis"])
+                                      "User Activity Comparison", "Interactive Analysis", 
+                                      "Additional Visualizations", "Customer Simulation"])
 
 # Application title
 st.title("Customer Churn Analysis - Bank")
@@ -100,8 +101,8 @@ elif selection == "Training Data Visualization":
     numeric_df = df_train.select_dtypes(include=['number'])
     
     # Create heatmap using seaborn and matplotlib
-    fig, ax = plt.subplots(figsize=(25, 25))
-    sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', linewidths=3, ax=ax)
+    fig, ax = plt.subplots(figsize=(12, 12))
+    sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', linewidths=0.5, ax=ax)
     ax.set_title("Correlation Heatmap", fontsize=24)
     
     # Convert matplotlib figure to streamlit-compatible format
@@ -181,27 +182,20 @@ elif selection == "Churn Prediction":
 
                     st.subheader("Visual Analysis")
                     for feature in columns_to_normalize:
-                        fig = px.histogram(df_train, x=feature, title=f'Distribution of {feature} in Training Data', color_discrete_sequence=['#1f77b4'])
+                        fig = px.histogram(df_train, x=feature, title=f'Distribution of {feature}', color_discrete_sequence=['#1f77b4'])
                         fig.update_layout(xaxis_title=feature, yaxis_title='Frequency', title_font_size=24)
                         st.plotly_chart(fig, use_container_width=True)
 
-                    for feature in categorical_columns:
-                        if feature in df_train.columns:
-                            fig = px.bar(df_train[feature].value_counts().reset_index(), x='index', y=feature,
-                                         title=f'Distribution of {feature} in Training Data', labels={'index': feature, feature: 'Count'},
-                                         color_discrete_sequence=['#1f77b4'])
-                            fig.update_layout(xaxis_title=feature, yaxis_title='Count', title_font_size=24)
-                            st.plotly_chart(fig, use_container_width=True)
             else:
-                st.write(f"No data found for test_idx {test_idx_value}")
+                st.write("Customer with the given test_idx not found.")
         except ValueError:
-            st.write("Please enter a valid integer for test_idx.")
+            st.write("Please enter a valid test_idx.")
 
 # User Activity Comparison
 elif selection == "User Activity Comparison":
-    st.header("User Activity Comparison")
+    st.header("Compare User Activity")
 
-    profile_df = df_test  # Use df_test directly for user activity data
+    profile_df = df_test.copy()  # Use df_test for comparison
 
     select, compare = st.tabs(["Select Customers", "Compare Selected"])
 
@@ -266,7 +260,7 @@ elif selection == "Interactive Analysis":
 
     # Create scatter plot
     fig = px.scatter(selected_data, x=x_axis, y=y_axis, color=color_by, title=f"{y_axis} vs {x_axis}",
-                     color_discrete_map=color_map)
+                     color_discrete_map=color_map if color_by == "Churn Prediction" else None)
     fig.update_layout(title_font_size=24, xaxis_title=x_axis, yaxis_title=y_axis)
     st.plotly_chart(fig, use_container_width=True)
 
@@ -289,3 +283,101 @@ elif selection == "Interactive Analysis":
                      color_discrete_map=color_map, title='PCA of Test Data')
     fig.update_layout(xaxis_title='PC1', yaxis_title='PC2', title_font_size=24)
     st.plotly_chart(fig, use_container_width=True)
+
+# Additional Visualizations
+elif selection == "Additional Visualizations":
+    st.header("Additional Visualizations")
+
+    profile_df = df_test.copy()  # Use df_test directly for additional visualizations
+
+    # Ensure 'Churn Prediction' is present in the DataFrame
+    profile_df = preprocess_for_prediction(profile_df)
+    profile_df['Churn Prediction'] = loaded_model.predict(profile_df)
+
+    select, compare = st.tabs(["General Statistics", "Feature Relationships"])
+
+    with select:
+        st.subheader("General Statistics")
+        
+        # Statistics summary
+        st.write("### Summary Statistics")
+        st.write(profile_df.describe())
+        
+        # Distribution of numerical features
+        st.write("### Distribution of Numerical Features")
+        for feature in columns_to_normalize:
+            if feature in profile_df.columns:
+                fig = px.histogram(profile_df, x=feature, title=f'Distribution of {feature}', color_discrete_sequence=['#1f77b4'])
+                fig.update_layout(xaxis_title=feature, yaxis_title='Frequency', title_font_size=24)
+                st.plotly_chart(fig, use_container_width=True)
+
+        # Pairwise correlation heatmap
+        st.subheader("Pairwise Correlation Heatmap")
+        numeric_df = profile_df.select_dtypes(include=['number'])
+        
+        fig, ax = plt.subplots(figsize=(12, 12))
+        sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', linewidths=0.5, ax=ax)
+        ax.set_title("Correlation Heatmap", fontsize=24)
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png")
+        buf.seek(0)
+        st.image(buf, use_column_width=True)
+        buf.close()
+        plt.close(fig)
+
+    with compare:
+        st.subheader("Feature Relationships")
+        
+        # Scatter plots for feature relationships
+        feature_x = st.selectbox("Select Feature for X Axis", options=[col for col in columns_to_normalize if col in profile_df.columns])
+        feature_y = st.selectbox("Select Feature for Y Axis", options=[col for col in columns_to_normalize if col in profile_df.columns])
+
+        if feature_x and feature_y:
+            color_by = st.selectbox("Color by", options=['Churn Prediction'] + [col for col in categorical_columns if col in profile_df.columns])
+
+            if color_by:
+                fig = px.scatter(profile_df, x=feature_x, y=feature_y, color=color_by,
+                                 color_discrete_map=color_map if color_by == 'Churn Prediction' else None,
+                                 title=f'{feature_y} vs {feature_x}')
+                fig.update_layout(xaxis_title=feature_x, yaxis_title=feature_y, title_font_size=24)
+                st.plotly_chart(fig, use_container_width=True)
+
+# Customer Simulation
+elif selection == "Customer Simulation":
+    st.header("Customer Simulation")
+
+    st.write("Enter the details of a new customer to predict churn risk.")
+
+    # Collecting user inputs for new customer
+    customer_data = {}
+    
+    customer_data['Customer_Age'] = st.number_input("Customer Age", min_value=0, max_value=120, value=30)
+    customer_data['Dependent_count'] = st.number_input("Dependent Count", min_value=0, max_value=10, value=0)
+    customer_data['Months_on_book'] = st.number_input("Months on Book", min_value=0, max_value=120, value=12)
+    customer_data['Total_Relationship_Count'] = st.number_input("Total Relationship Count", min_value=1, max_value=10, value=1)
+    customer_data['Months_Inactive_12_mon'] = st.number_input("Months Inactive in the Last 12 Months", min_value=0, max_value=12, value=0)
+    customer_data['Contacts_Count_12_mon'] = st.number_input("Contacts Count in the Last 12 Months", min_value=0, max_value=10, value=1)
+    customer_data['Credit_Limit'] = st.number_input("Credit Limit", min_value=0, max_value=100000, value=5000)
+    customer_data['Total_Revolving_Bal'] = st.number_input("Total Revolving Balance", min_value=0, max_value=100000, value=0)
+    customer_data['Avg_Open_To_Buy'] = st.number_input("Average Open To Buy", min_value=0, max_value=100000, value=5000)
+    customer_data['Total_Amt_Chng_Q4_Q1'] = st.number_input("Total Amount Change from Q4 to Q1", min_value=-1.0, max_value=1.0, value=0.0)
+    customer_data['Total_Trans_Amt'] = st.number_input("Total Transaction Amount", min_value=0, max_value=100000, value=1000)
+    customer_data['Total_Trans_Ct'] = st.number_input("Total Transaction Count", min_value=0, max_value=100, value=10)
+    customer_data['Total_Ct_Chng_Q4_Q1'] = st.number_input("Total Count Change from Q4 to Q1", min_value=-1.0, max_value=1.0, value=0.0)
+    customer_data['Avg_Utilization_Ratio'] = st.number_input("Average Utilization Ratio", min_value=0.0, max_value=1.0, value=0.2)
+
+    # Collecting categorical inputs
+    customer_data['Gender'] = st.selectbox("Gender", options=["Male", "Female"])
+    customer_data['Education_Level'] = st.selectbox("Education Level", options=["Uneducated", "High School", "College", "Graduate", "Post-Graduate"])
+    customer_data['Marital_Status'] = st.selectbox("Marital Status", options=["Single", "Married", "Divorced"])
+    customer_data['Income_Category'] = st.selectbox("Income Category", options=["Less than $40K", "$40K - $60K", "$60K - $80K", "$80K - $120K", "More than $120K"])
+    customer_data['Card_Category'] = st.selectbox("Card Category", options=["Blue", "Silver", "Gold", "Platinum"])
+
+    if st.button("Predict Churn"):
+        new_customer_df = pd.DataFrame([customer_data])
+        new_customer_df = preprocess_for_prediction(new_customer_df)
+        churn_prediction = loaded_model.predict(new_customer_df)
+        message = 'Churn' if churn_prediction[0] == 1 else 'No Churn'
+        st.write(f"The prediction for the new customer is: {message}")
+
