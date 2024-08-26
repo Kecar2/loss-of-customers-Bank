@@ -1,7 +1,6 @@
 import pandas as pd
 from joblib import load
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 
 # Cargar el modelo y el scaler desde los archivos
 with open('modelo_gradient_boosting.joblib', 'rb') as file:
