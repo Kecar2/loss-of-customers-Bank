@@ -1,5 +1,5 @@
 import pandas as pd
-from joblib import dump
+from .. import dump
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
