@@ -69,7 +69,7 @@ image_path = "score.png"
 
 # Home
 if selection == "Home":
-    st.header("Welcome to the Customer Churn Analysis Application")
+    st.header("Welcome to the Customer Churn Analysis App")
     st.markdown(f"""
     This application helps you analyze customer churn risk in a bank. It provides tools for understanding and predicting which customers are likely to leave the bank based on their behaviors and characteristics.
     
