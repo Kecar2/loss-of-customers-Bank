@@ -3,8 +3,6 @@ import pandas as pd
 from joblib import load
 import plotly.express as px
 import plotly.figure_factory as ff
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 # Define a color map for churn prediction categories
