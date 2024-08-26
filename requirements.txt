@@ -3,5 +3,4 @@ plotly
 pandas
 matplotlib
 seaborn
-pickle5
-io
+joblib

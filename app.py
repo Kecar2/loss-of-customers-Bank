@@ -5,7 +5,7 @@ import plotly.express as px
 import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
 import seaborn as sns
-import io
+
 
 # Define a color map for churn prediction categories
 color_map = {
@@ -129,18 +129,6 @@ elif selection == "Training Data Visualization":
     # Filter out non-numeric columns
     numeric_df = df_train.select_dtypes(include=['number'])
     
-    # Create heatmap using seaborn and matplotlib
-    fig, ax = plt.subplots(figsize=(12, 12))
-    sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', linewidths=0.5, ax=ax)
-    ax.set_title("Correlation Heatmap", fontsize=24)
-    
-    # Convert matplotlib figure to streamlit-compatible format
-    buf = io.BytesIO()
-    plt.savefig(buf, format="png")
-    buf.seek(0)
-    st.image(buf, use_column_width=True)
-    buf.close()
-    plt.close(fig)
 
     st.subheader("Interactive Correlation Matrix")
     # Create an interactive heatmap using Plotly
@@ -319,21 +307,6 @@ elif selection == "Additional Visualizations":
                 fig = px.histogram(profile_df, x=feature, title=f'Distribution of {feature}', color_discrete_sequence=['#1f77b4'])
                 fig.update_layout(xaxis_title=feature, yaxis_title='Frequency', title_font_size=24)
                 st.plotly_chart(fig, use_container_width=True)
-
-        # Pairwise correlation heatmap
-        st.subheader("Pairwise Correlation Heatmap")
-        numeric_df = profile_df.select_dtypes(include=['number'])
-        
-        fig, ax = plt.subplots(figsize=(12, 12))
-        sns.heatmap(numeric_df.corr(), annot=True, cmap='coolwarm', linewidths=0.5, ax=ax)
-        ax.set_title("Correlation Heatmap", fontsize=24)
-        
-        buf = io.BytesIO()
-        plt.savefig(buf, format="png")
-        buf.seek(0)
-        st.image(buf, use_column_width=True)
-        buf.close()
-        plt.close(fig)
 
     with compare:
         st.subheader("Feature Relationships")
