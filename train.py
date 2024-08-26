@@ -1,5 +1,5 @@
 import pandas as pd
-import pickle
+from joblib import dump
 import numpy as np
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.metrics import accuracy_score
@@ -68,11 +68,11 @@ gb_test_score = accuracy_score(
 )
 
 # Guardar el modelo entrenado y el scaler ajustado
-with open('modelo_gradient_boosting.pkl', 'wb') as file:
-    pickle.dump(gb, file)
+with open('modelo_gradient_boosting.joblib', 'wb') as file:
+    dump(gb, file)
 
-with open('scaler.pkl', 'wb') as file:
-    pickle.dump(scaler, file)
+with open('scaler.joblib', 'wb') as file:
+    dump(scaler, file)
 
 # Mostrar el puntaje de precisión del modelo
 print(f'The test score with gradient boosting is {gb_test_score.round(3)}')

@@ -1,14 +1,14 @@
 import pandas as pd
-import pickle
+from joblib import load
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 # Cargar el modelo y el scaler desde los archivos
-with open('modelo_gradient_boosting.pkl', 'rb') as file:
-    modelo_cargado = pickle.load(file)
+with open('modelo_gradient_boosting.joblib', 'rb') as file:
+    modelo_cargado = load.load(file)
 
-with open('scaler.pkl', 'rb') as file:
-    scaler_cargado = pickle.load(file)
+with open('scaler.joblib', 'rb') as file:
+    scaler_cargado = load.load(file)
 
 # Cargar el nuevo conjunto de datos
 nuevo_df = pd.read_csv('supply_chain_test.csv')

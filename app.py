@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import pickle
+from joblib import load
 import plotly.express as px
 import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
@@ -14,11 +14,11 @@ color_map = {
 }
 
 # Load the model and scaler from files
-with open('modelo_gradient_boosting.pkl', 'rb') as file:
-    loaded_model = pickle.load(file)
+with open('modelo_gradient_boosting.joblib', 'rb') as file:
+    loaded_model = load(file)
 
-with open('scaler.pkl', 'rb') as file:
-    loaded_scaler = pickle.load(file)
+with open('scaler.joblib', 'rb') as file:
+    loaded_scaler = load(file)
 
 # Load datasets
 df_train = pd.read_csv('supply_chain_train.csv')
