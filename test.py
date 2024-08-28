@@ -4,10 +4,10 @@ import numpy as np
 
 # Cargar el modelo y el scaler desde los archivos
 with open('modelo_gradient_boosting.joblib', 'rb') as file:
-    modelo_cargado = load.load(file)
+    modelo_cargado = load(file)
 
 with open('scaler.joblib', 'rb') as file:
-    scaler_cargado = load.load(file)
+    scaler_cargado = load(file)
 
 # Cargar el nuevo conjunto de datos
 nuevo_df = pd.read_csv('supply_chain_test.csv')
