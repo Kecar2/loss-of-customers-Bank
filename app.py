@@ -3,7 +3,10 @@ import pandas as pd
 from joblib import load
 import plotly.express as px
 import plotly.figure_factory as ff
+import warnings
+import numpy as np
 
+warnings.simplefilter("ignore", np.ComplexWarning)
 
 # Define a color map for churn prediction categories
 color_map = {
